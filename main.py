@@ -361,7 +361,7 @@ def fitness_function(genome: Genome, step_chords: List[Chord]) -> int:
         previous = genome[i - 1]
 
         if current in subdominant_group and previous in dominant_group:  # D -> S is bad
-            fitness -= 10
+            fitness -= 50
         if (
             current in dominant_group and previous in subdominant_group
         ):  # S -> D is good
@@ -429,11 +429,12 @@ def run_evolution(step_chords: List[Chord], chords_num) -> Population:
             next_generation += [first_offspring, second_offspring]
 
         population = next_generation
+        print("step ", i, " completed")
     return population
 
 
 def generate_output(
-    midi_init: mido.MidiFile, chords_list: List[Chord], total_ticks: int, new_name: str
+    midi_init: mido.MidiFile, chords_list: List[Chord], new_name: str
 ) -> None:
     # function that simply merges initial midi file
     # with our generated accompaniment and save new midi file
@@ -450,23 +451,19 @@ def generate_output(
 
         chord_notes = chord.chord_notes
 
-        for i in range(len(chord_notes)):
-            track.append(
-                mido.Message("note_on", note=chord_notes[i], velocity=50, time=0)
+        for note in chord_notes:
+            track.append(mido.Message("note_on", note=int(note), velocity=50, time=0))
+        track.append(
+            mido.Message(
+                "note_off", note=int(chord_notes[0]), velocity=50, time=ticks_per_beat
             )
-
-        if time + ticks_per_beat > total_ticks:
-            track.append(
-                mido.Message(
-                    "note_off", note=chord_notes[0], velocity=0, time=total_ticks - time
-                )
-            )
-        else:
-            track.append(
-                mido.Message(
-                    "note_off", note=chord_notes[0], velocity=0, time=ticks_per_beat
-                )
-            )
+        )
+        track.append(
+            mido.Message("note_off", note=int(chord_notes[1]), velocity=50, time=0)
+        )
+        track.append(
+            mido.Message("note_off", note=int(chord_notes[2]), velocity=50, time=0)
+        )
 
         track.append(mido.Message("note_off", note=chord_notes[1], velocity=0, time=0))
         track.append(mido.Message("note_off", note=chord_notes[2], velocity=0, time=0))
@@ -477,7 +474,6 @@ def generate_output(
     merged_mid.ticks_per_beat = ticks_per_beat
 
     merged_mid.tracks = midi_init.tracks + acc_mid.tracks
-
     merged_mid.save(f"{new_name}.mid")
 
 
@@ -528,7 +524,7 @@ def main():
             chord.chord_notes[i] += ((octave - 2) + chord.plus_octave[i]) * 12
 
     # generate resulted midi file
-    generate_output(midi, genome_with_max_fitness, get_total_time(midi), "output")
+    generate_output(midi, genome_with_max_fitness, "output")
 
 
 if __name__ == "__main__":
