@@ -80,12 +80,12 @@ def get_candidate_keys(notes: List[int]) -> Dict[Tuple[int, str], List[int]]:
     ret = {}
     for i in range(12):
         if set(notes).issubset(
-            get_gamma("major", i)
+                get_gamma("major", i)
         ):  # note i with major tonality will fit in the major gamma
             ret[(i, "major")] = get_gamma("major", i)
 
         if set(notes).issubset(
-            get_gamma("minor", i)
+                get_gamma("minor", i)
         ):  # # note i with minor tonality will fit in the major gamma
             ret[(i, "minor")] = get_gamma("minor", i)
 
@@ -93,10 +93,10 @@ def get_candidate_keys(notes: List[int]) -> Dict[Tuple[int, str], List[int]]:
 
 
 def note_considering(
-    notes_list: List[int],
-    tonic_keys: Dict[Tuple[int, str], List[int]],
-    note_type: str,
-    key_scores: Dict[Tuple[int, str], int],
+        notes_list: List[int],
+        tonic_keys: Dict[Tuple[int, str], List[int]],
+        note_type: str,
+        key_scores: Dict[Tuple[int, str], int],
 ) -> Dict[Tuple[int, str], int]:
     # in this function we determine which of the candidate keys will fit best in the given melody
     # we use 2 metrics for this:
@@ -119,7 +119,7 @@ def note_considering(
             key_scores[key] = key_scores.get(key, 0) + 100
 
         if (
-            tonic_keys[key][2] == note or tonic_keys[key][4] == note
+                tonic_keys[key][2] == note or tonic_keys[key][4] == note
         ):  # median or dominant of last note
             key_scores[key] = key_scores.get(key, 0) + 50
 
@@ -129,7 +129,7 @@ def note_considering(
 
 
 def repeatable_keys_considering(
-    notes_list: [int], tonic_keys: {(int, str): [int]}, key_scores: {(int, str): int}
+        notes_list: [int], tonic_keys: {(int, str): [int]}, key_scores: {(int, str): int}
 ) -> {(int, str): int}:
     # in this function we're considering second metric of tonic key fitness
     # we chose key with most of the occurrences of notes and similar to it by gamma,
@@ -158,7 +158,7 @@ def repeatable_keys_considering(
         return key_scores
     else:
         key_scores[key_with_max_val] = (
-            key_scores.get(key_with_max_val, 0) + 25
+                key_scores.get(key_with_max_val, 0) + 25
         )  # updating score of the chosen tonic key
         return key_scores
 
@@ -212,7 +212,7 @@ def get_step_chords(tonic_key: Tuple[int, str], octave: int) -> List[Chord]:
     # because these chords will fit best for our tonic key of the given melody
 
     if (
-        tonic_key[1] == "major"
+            tonic_key[1] == "major"
     ):  # chose gamma according to which we will construct step chord
         chosen_gamma = major
     elif tonic_key[1] == "minor":
@@ -225,7 +225,7 @@ def get_step_chords(tonic_key: Tuple[int, str], octave: int) -> List[Chord]:
     curr_key = nums_from_notes[tonic_key[0]]
 
     for i in range(
-        len(chosen_gamma)
+            len(chosen_gamma)
     ):  # construct step chords according to chosen gamma
         if chosen_gamma == major:
             if i == 0 or i == 3 or i == 4:
@@ -268,7 +268,7 @@ def generate_genome(length: int, step_chords: [Chord]) -> Genome:
 
 
 def generate_population(
-    length: int, genome_length: int, step_chords: [Chord]
+        length: int, genome_length: int, step_chords: [Chord]
 ) -> Population:
     # function to generate population
     # we generate k genomes, and they are constructs population
@@ -280,10 +280,10 @@ def generate_population(
 
 def crossover(first_genome: Genome, second_genome: Genome) -> Tuple[Genome, Genome]:
     # function to crossover between 2 chosen genomes
-    # we randomly generate number in range of length of the genome - p,
-    # and then we form 2 new genomes which are combination of initial genomes
-    # part from 0 to p of first genome with remaining part of second
-    # and part from 0 to p of second genome with remaining part of first
+    # we randomly generate a number in the range of length of the genome - p,
+    # and then we form 2 new genomes which are a combination of initial genomes
+    # The part from 0 to p of the first genome with the remaining part of the second
+    # and part from 0 to p of the second genome with the remaining part of first
     if len(first_genome) != len(second_genome):
         raise Exception("length of genomes should be the same")
     length = len(first_genome)
@@ -293,27 +293,27 @@ def crossover(first_genome: Genome, second_genome: Genome) -> Tuple[Genome, Geno
     cut_len = np.random.randint(1, length - 1)  # generate random number to cut genomes
 
     new_first_g = (
-        first_genome[0:cut_len] + second_genome[cut_len:]
+            first_genome[0:cut_len] + second_genome[cut_len:]
     )  # first resulted genome
     new_second_g = (
-        second_genome[0:cut_len] + first_genome[cut_len:]
+            second_genome[0:cut_len] + first_genome[cut_len:]
     )  # second resulted genome
     return new_first_g, new_second_g
 
 
 def mutation(
-    genome: Genome,
-    step_chords: List[Chord],
-    mutation_prob: float = 0.5,
-    num_of_mutations: int = 10,
+        genome: Genome,
+        step_chords: List[Chord],
+        mutation_prob: float = 0.5,
+        num_of_mutations: int = 10,
 ) -> Genome:
     # mutation function
-    # we chose number of mutations to perform
+    # we chose the number of mutations to perform
     # and then generate 2 random variables
     # 1) position of the element in the genome
     # 2) probability to perform mutation
-    # and if second variable is greater than given mutation probability
-    # we replace genome chosen by the random variable by some random from step chord
+    # and if the second variable is greater than the given mutation probability
+    # we replace the genome chosen by the random variable with some random from step chord
     for x in range(num_of_mutations):
         random_genome_ind = np.random.randint(
             len(genome)
@@ -361,16 +361,16 @@ def fitness_function(genome: Genome, step_chords: List[Chord]) -> int:
         previous = genome[i - 1]
 
         if current in subdominant_group and previous in dominant_group:  # D -> S is bad
-            fitness -= 50
+            fitness -= 70
         if (
-            current in dominant_group and previous in subdominant_group
+                current in dominant_group and previous in subdominant_group
         ):  # S -> D is good
-            fitness += 25
-        if current in tonic_group and (
-            previous in subdominant_group
-            or previous in dominant_group  # S -> T and D -> T is good
-        ):
             fitness += 35
+        if current in tonic_group and (
+                previous in subdominant_group
+                or previous in dominant_group  # S -> T and D -> T is good
+        ):
+            fitness += 40
         if current == subdominant and previous == step_chords[1]:  # II -> S is bad
             fitness -= 20
         if current == step_chords[6] and previous == dominant:  # D -> VI is bad
@@ -382,9 +382,9 @@ def fitness_function(genome: Genome, step_chords: List[Chord]) -> int:
 
 
 def selection(population: Population, step_chords: List[Chord]) -> Population:
-    # this is selection function
-    # in this function we chose 2 population to parents for further crossover
-    # and the probability of being selected as parent is depends on its fitness score
+    # this is a selection function
+    # in this function, we chose 2 genomes of parents for further crossover
+    # and the probability of being selected as a parent depends on its fitness score.
     return random.choices(
         population,
         [fitness_function(genome, step_chords) for genome in population],
@@ -393,10 +393,10 @@ def selection(population: Population, step_chords: List[Chord]) -> Population:
 
 
 def run_evolution(step_chords: List[Chord], chords_num) -> Population:
-    # in this function we run our evolution
-    # we firstly declare number of generation to choose the vest genome
-    # then we generate population of genomes
-    # and times equal generations number we generate next generation according to following algorithm:
+    # in this function, we run our evolution
+    # we firstly declare the number of generations to choose the vest genome
+    # then we generate a population of genomes
+    # and times equal generations number we generate next-generation according to the following algorithm:
     # * sort our population by fitness function result of the genomes
     # * take 2 best genomes
     # * and population size/2 do next:
@@ -404,8 +404,8 @@ def run_evolution(step_chords: List[Chord], chords_num) -> Population:
     # * crossover them
     # * after this mutate them
     # * and append them to the next generation
-    # and after this algorithm we will get next population with the same number of genomes
-    # this new population should be better than previous in terms of fitness function of genomes
+    # and after this algorithm, we will get the next population with the same number of genomes
+    # this new population should be better than the previous in terms of the fitness function of genomes
     generations_number = 100
     population = generate_population(100, chords_num, step_chords)
 
@@ -429,12 +429,12 @@ def run_evolution(step_chords: List[Chord], chords_num) -> Population:
             next_generation += [first_offspring, second_offspring]
 
         population = next_generation
-        print("step ", i, " completed")
+        # print("step ", i, " completed")
     return population
 
 
 def generate_output(
-    midi_init: mido.MidiFile, chords_list: List[Chord], new_name: str
+        midi_init: mido.MidiFile, chords_list: List[Chord], new_name: str
 ) -> None:
     # function that simply merges initial midi file
     # with our generated accompaniment and save new midi file
@@ -524,7 +524,7 @@ def main():
             chord.chord_notes[i] += ((octave - 2) + chord.plus_octave[i]) * 12
 
     # generate resulted midi file
-    generate_output(midi, genome_with_max_fitness, "output")
+    generate_output(midi, genome_with_max_fitness, "NikitaSergeevOutput3")
 
 
 if __name__ == "__main__":
